@@ -22,6 +22,79 @@ def full_factorial(levels_per_factor: Dict[str, List[Union[int, float]]]) -> pd.
     grid = list(itertools.product(*values))
     return pd.DataFrame(grid, columns=keys)
 
+def orthogonal_array(kind: str) -> pd.DataFrame:
+    """
+    Genera arreglos ortogonales estándar de Taguchi.
+    Soporta:
+      - "L4" o "L4(2^3)"
+      - "L8" o "L8(2^7)"
+      - "L9" o "L9(3^4)"
+      - "L18" o "L18(2^1x3^7)"
+    """
+    kind = kind.upper().replace(" ", "").replace("^", "").replace("(", "").replace(")", "").replace("X", "x")
+    
+    if kind in ["L4", "L423"]:
+        data = [
+            [1, 1, 1],
+            [1, 2, 2],
+            [2, 1, 2],
+            [2, 2, 1]
+        ]
+        return pd.DataFrame(data, columns=["A", "B", "C"])
+        
+    elif kind in ["L8", "L827"]:
+        data = [
+            [1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 2, 2, 2, 2],
+            [1, 2, 2, 1, 1, 2, 2],
+            [1, 2, 2, 2, 2, 1, 1],
+            [2, 1, 2, 1, 2, 1, 2],
+            [2, 1, 2, 2, 1, 2, 1],
+            [2, 2, 1, 1, 2, 2, 1],
+            [2, 2, 1, 2, 1, 1, 2]
+        ]
+        return pd.DataFrame(data, columns=["A", "B", "C", "D", "E", "F", "G"])
+        
+    elif kind in ["L9", "L934"]:
+        data = [
+            [1, 1, 1, 1],
+            [1, 2, 2, 2],
+            [1, 3, 3, 3],
+            [2, 1, 2, 3],
+            [2, 2, 3, 1],
+            [2, 3, 1, 2],
+            [3, 1, 3, 2],
+            [3, 2, 1, 3],
+            [3, 3, 2, 1]
+        ]
+        return pd.DataFrame(data, columns=["A", "B", "C", "D"])
+        
+    elif kind in ["L18", "L1821x37", "L182137"]:
+        data = [
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 2, 2, 2, 2, 2, 2],
+            [1, 1, 3, 3, 3, 3, 3, 3],
+            [1, 2, 1, 1, 2, 2, 3, 3],
+            [1, 2, 2, 2, 3, 3, 1, 1],
+            [1, 2, 3, 3, 1, 1, 2, 2],
+            [1, 3, 1, 2, 1, 3, 2, 3],
+            [1, 3, 2, 3, 2, 1, 3, 1],
+            [1, 3, 3, 1, 3, 2, 1, 2],
+            [2, 1, 1, 3, 3, 2, 2, 1],
+            [2, 1, 2, 1, 1, 3, 3, 2],
+            [2, 1, 3, 2, 2, 1, 1, 3],
+            [2, 2, 1, 2, 3, 1, 3, 2],
+            [2, 2, 2, 3, 1, 2, 1, 3],
+            [2, 2, 3, 1, 2, 3, 2, 1],
+            [2, 3, 1, 3, 2, 3, 1, 2],
+            [2, 3, 2, 1, 3, 1, 2, 3],
+            [2, 3, 3, 2, 1, 2, 3, 1]
+        ]
+        return pd.DataFrame(data, columns=["A", "B", "C", "D", "E", "F", "G", "H"])
+        
+    else:
+        raise ValueError(f"Arreglo ortogonal '{kind}' no soportado. Use L4, L8, L9 o L18.")
+
 def orthogonal_array_L4() -> pd.DataFrame:
     """
     Genera una matriz externa ortogonal L4(2^2) para factores de ruido N1 y N2.

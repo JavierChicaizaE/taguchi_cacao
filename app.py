@@ -24,7 +24,7 @@ st.set_page_config(
 logging.getLogger("streamlit").setLevel(logging.WARNING)
 
 from taguchi_core import (
-    full_factorial, orthogonal_array_L4, cross_arrays, signal_to_noise,
+    full_factorial, orthogonal_array, orthogonal_array_L4, cross_arrays, signal_to_noise,
     response_table, pareto_anova, predict_optimal_sn, mrsn_index
 )
 from response_model import simulate_responses, FACTOR_RANGES
@@ -655,6 +655,15 @@ if step == "01. Datos y Arreglo Cruzado":
         if up is not None:
             st.session_state.taguchi_df = pd.read_csv(up)
             st.success("CSV personalizado cargado correctamente.")
+
+    st.subheader("Generador de Arreglos Ortogonales de Referencia")
+    ref_kind = st.selectbox(
+        "Seleccionar un arreglo ortogonal para previsualizar:",
+        ["L4(2^3)", "L8(2^7)", "L9(3^4)", "L18(2^1x3^7)"]
+    )
+    if st.button("Generar Arreglo de Referencia"):
+        ref_df = orthogonal_array(ref_kind)
+        st.dataframe(ref_df, use_container_width=True)
 
     st.divider()
 
