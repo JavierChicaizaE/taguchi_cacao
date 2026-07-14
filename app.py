@@ -17,7 +17,8 @@ import plotly.io as pio
 
 st.set_page_config(
     page_title="Taguchi - Tostado de Cacao Nacional",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 # Silenciar logs recurrentes de health check (/_stcore/health) en consola
@@ -129,6 +130,11 @@ st.markdown(f"""
     /* Datos y tablas monoespaciadas */
     [data-testid="stMetricValue"], [data-testid="stDataFrame"], code, pre, td, th {{
         font-family: 'JetBrains Mono', monospace !important;
+    }}
+
+    /* Ocultar control de colapsado del sidebar para mantenerlo fijo */
+    [data-testid="collapsedControl"] {{
+        display: none !important;
     }}
 
     /* SIDEBAR */
@@ -391,7 +397,7 @@ st.markdown(f"""
         color: #166534 !important;
     }}
 
-    /* INPUTS */
+    /* INPUTS Y SELECTS (INCLUYENDO DROPDOWNS) */
     div[data-baseweb="select"] > div,
     div[data-baseweb="input"] > div {{
         background: {bg_card} !important;
@@ -410,6 +416,40 @@ st.markdown(f"""
     .stFileUploader label {{
         color: {text_main} !important;
         font-weight: 600 !important;
+    }}
+    
+    /* Popover/Menús desplegables para modo oscuro */
+    div[data-baseweb="popover"], 
+    div[data-baseweb="menu"], 
+    ul[role="listbox"],
+    ul[role="listbox"] li,
+    div[data-baseweb="popover"] * {{
+        background-color: {bg_card} !important;
+        color: {text_main} !important;
+    }}
+    div[data-baseweb="menu"] li:hover,
+    ul[role="listbox"] li:hover,
+    ul[role="listbox"] li[aria-selected="true"] {{
+        background-color: {accent_warm} !important;
+        color: #FFFFFF !important;
+    }}
+
+    /* TABLAS EN MODO OSCURO */
+    table, tr, td, th {{
+        background-color: {bg_card} !important;
+        color: {text_main} !important;
+        border-color: {border_color} !important;
+    }}
+    thead th {{
+        background-color: {bg_app} !important;
+        color: {text_main} !important;
+        font-weight: bold !important;
+    }}
+
+    /* LA-TEX / KA-TEX EN MODO OSCURO */
+    .stLatex, .stLatex *, .katex, .katex * {{
+        color: {text_main} !important;
+        fill: {text_main} !important;
     }}
 
     /* HOWTO BOX */
@@ -495,11 +535,11 @@ with st.sidebar:
         <div class="sidebar-header">Factores de Control</div>
         <div class="sidebar-pill-container">
             <div class="sidebar-pill">
-                <span class="pill-title">Temperatura de Control (A)</span>
+                <span class="pill-title">Temperatura de Control (<i>A</i>)</span>
                 <span class="pill-subtitle">Rango: 120°C &ndash; 160°C</span>
             </div>
             <div class="sidebar-pill">
-                <span class="pill-title">Tiempo de Control (B)</span>
+                <span class="pill-title">Tiempo de Control (<i>B</i>)</span>
                 <span class="pill-subtitle">Rango: 10 &ndash; 30 min</span>
             </div>
         </div>
@@ -509,11 +549,11 @@ with st.sidebar:
         <div class="sidebar-header">Factores de Ruido</div>
         <div class="sidebar-pill-container">
             <div class="sidebar-pill">
-                <span class="pill-title">Humedad Ambiental (N1)</span>
+                <span class="pill-title">Humedad Ambiental (<i>N</i><sub>1</sub>)</span>
                 <span class="pill-subtitle">Extremos: 50% HR / 80% HR</span>
             </div>
             <div class="sidebar-pill">
-                <span class="pill-title">Humedad del Grano (N2)</span>
+                <span class="pill-title">Humedad del Grano (<i>N</i><sub>2</sub>)</span>
                 <span class="pill-subtitle">Extremos: 5% / 8% (mismo RSM)</span>
             </div>
         </div>
@@ -575,42 +615,59 @@ if st.session_state.taguchi_df is None:
         st.session_state.taguchi_df = pd.read_csv(default_csv)
 
 # ---------------------------------------------------------------------------
-# NAVEGACIÓN TEMÁTICA AGRUPADA EN EL SIDEBAR
+# NAVEGACIÓN METODOLÓGICA (CONTENIDO PRINCIPAL)
 # ---------------------------------------------------------------------------
-st.sidebar.markdown('<div class="sidebar-header">Navegación Metodológica</div>', unsafe_allow_html=True)
-fase = st.sidebar.selectbox(
-    "Fase de Análisis",
-    [
-        "1. Preparación y Datos",
-        "2. Análisis y Contribución",
-        "3. Optimización y Reporte"
-    ]
-)
+ALL_STEPS = [
+    "01. Datos y Arreglo Cruzado",
+    "02. Cálculo de Razones S/N",
+    "03. Tabla de Respuesta y Efectos",
+    "04. Pareto ANOVA",
+    "05. Optimización Robusta",
+    "06. Exportar Reporte"
+]
 
-if fase == "1. Preparación y Datos":
-    step = st.sidebar.radio(
-        "Paso activo",
-        [
-            "01. Datos y Arreglo Cruzado",
-            "02. Cálculo de Razones S/N"
-        ]
-    )
-elif fase == "2. Análisis y Contribución":
-    step = st.sidebar.radio(
-        "Paso activo",
-        [
-            "03. Tabla de Respuesta y Efectos",
-            "04. Pareto ANOVA"
-        ]
-    )
-else:
-    step = st.sidebar.radio(
-        "Paso activo",
-        [
-            "05. Optimización Robusta",
-            "06. Exportar Reporte"
-        ]
-    )
+if "active_step" not in st.session_state:
+    st.session_state.active_step = ALL_STEPS[0]
+
+# Determinar el índice actual para resaltar la fase
+step_index = ALL_STEPS.index(st.session_state.active_step)
+
+active_border_1 = accent_warm if step_index in [0, 1] else border_color
+active_border_2 = accent_warm if step_index in [2, 3] else border_color
+active_border_3 = accent_warm if step_index in [4, 5] else border_color
+
+active_text_1 = text_main if step_index in [0, 1] else text_muted
+active_text_2 = text_main if step_index in [2, 3] else text_muted
+active_text_3 = text_main if step_index in [4, 5] else text_muted
+
+phase_html = f"""
+<div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; font-family: 'Inter', sans-serif;">
+    <div style="width: 32%; text-align: center; border-bottom: 3px solid {active_border_1}; padding-bottom: 8px; color: {active_text_1};">Fase I: Preparación y Datos</div>
+    <div style="width: 32%; text-align: center; border-bottom: 3px solid {active_border_2}; padding-bottom: 8px; color: {active_text_2};">Fase II: Análisis y Contribución</div>
+    <div style="width: 32%; text-align: center; border-bottom: 3px solid {active_border_3}; padding-bottom: 8px; color: {active_text_3};">Fase III: Optimización y Reporte</div>
+</div>
+"""
+st.markdown(phase_html, unsafe_allow_html=True)
+
+cols = st.columns(6)
+step_labels = [
+    "1. Datos y Arreglo",
+    "2. Razones S/N",
+    "3. Efectos y Tablas",
+    "4. Pareto ANOVA",
+    "5. Optimización",
+    "6. Reporte"
+]
+
+for idx, label in enumerate(step_labels):
+    step_val = ALL_STEPS[idx]
+    is_active = (st.session_state.active_step == step_val)
+    btn_type = "primary" if is_active else "secondary"
+    if cols[idx].button(label, key=f"btn_step_{idx}", type=btn_type, use_container_width=True):
+        st.session_state.active_step = step_val
+        st.rerun()
+
+step = st.session_state.active_step
 
 # ---------------------------------------------------------------------------
 # RENDERIZADO DE LOS PASOS DE NAVEGACIÓN
@@ -659,7 +716,13 @@ if step == "01. Datos y Arreglo Cruzado":
     st.subheader("Generador de Arreglos Ortogonales de Referencia")
     ref_kind = st.selectbox(
         "Seleccionar un arreglo ortogonal para previsualizar:",
-        ["L4(2^3)", "L8(2^7)", "L9(3^4)", "L18(2^1x3^7)"]
+        ["L4(2^3)", "L8(2^7)", "L9(3^4)", "L18(2^1x3^7)"],
+        format_func=lambda x: {
+            "L4(2^3)": "L₄ (2³)",
+            "L8(2^7)": "L₈ (2⁷)",
+            "L9(3^4)": "L₉ (3⁴)",
+            "L18(2^1x3^7)": "L₁₈ (2¹ × 3⁷)"
+        }.get(x, x)
     )
     if st.button("Generar Arreglo de Referencia"):
         ref_df = orthogonal_array(ref_kind)
@@ -816,8 +879,8 @@ elif step == "03. Tabla de Respuesta y Efectos":
         )
         
         ca, cb = st.columns(2)
-        ca.plotly_chart(fig_sn, use_container_width=True)
-        cb.plotly_chart(fig_mean, use_container_width=True)
+        ca.plotly_chart(fig_sn, use_container_width=True, theme=None)
+        cb.plotly_chart(fig_mean, use_container_width=True, theme=None)
 
 # ===========================================================================
 # PASO 4: ANOVA
@@ -864,7 +927,7 @@ elif step == "04. Pareto ANOVA":
             height=400
         )
         
-        st.plotly_chart(fig_bar, use_container_width=True)
+        st.plotly_chart(fig_bar, use_container_width=True, theme=None)
 
 # ===========================================================================
 # PASO 5: OPTIMIZACIÓN
@@ -934,7 +997,7 @@ elif step == "05. Optimización Robusta":
             yaxis_title="Razón S/N (dB)",
             height=400
         )
-        st.plotly_chart(fig_runs, use_container_width=True)
+        st.plotly_chart(fig_runs, use_container_width=True, theme=None)
         
         st.divider()
         
@@ -957,7 +1020,7 @@ elif step == "05. Optimización Robusta":
             yaxis_title="Razón S/N (dB)",
             height=400
         )
-        st.plotly_chart(fig_scatter, use_container_width=True)
+        st.plotly_chart(fig_scatter, use_container_width=True, theme=None)
         
         st.divider()
         
@@ -1035,3 +1098,21 @@ else:
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
         st.success("Reporte estructurado listo para descargar.")
+
+# ---------------------------------------------------------------------------
+# BOTONES DE NAVEGACIÓN SECUENCIAL (ANTERIOR / SIGUIENTE)
+# ---------------------------------------------------------------------------
+st.markdown("<br><br>", unsafe_allow_html=True)
+st.divider()
+col_prev, col_spacer, col_next = st.columns([0.25, 0.5, 0.25])
+
+if step_index > 0:
+    if col_prev.button("← Paso Anterior", key="btn_prev_step", use_container_width=True):
+        st.session_state.active_step = ALL_STEPS[step_index - 1]
+        st.rerun()
+
+if step_index < len(ALL_STEPS) - 1:
+    if col_next.button("Siguiente Paso →", key="btn_next_step", type="primary", use_container_width=True):
+        st.session_state.active_step = ALL_STEPS[step_index + 1]
+        st.rerun()
+
