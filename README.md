@@ -23,16 +23,16 @@ La interfaz de usuario implementa un **asistente interactivo paso a paso** (Wiza
 
 ```mermaid
 graph TD
-    subgraph Fase I: Preparación y Datos
-        A[01. Datos y Arreglo Cruzado] --> B[02. Cálculo de Razones S/N]
+    subgraph sg1 ["Fase I: Preparación y Datos"]
+        A["01. Datos y Arreglo Cruzado"] --> B["02. Cálculo de Razones S/N"]
     end
-    subgraph Fase II: Análisis y Contribución
-        B --> C[03. Tabla de Respuesta y Efectos]
-        C --> D[04. Pareto ANOVA]
+    subgraph sg2 ["Fase II: Análisis y Contribución"]
+        B --> C["03. Tabla de Respuesta y Efectos"]
+        C --> D["04. Pareto ANOVA"]
     end
-    subgraph Fase III: Optimización y Reporte
-        D --> E[05. Optimización Robusta y MRSN]
-        E --> F[06. Exportación de Reporte Excel]
+    subgraph sg3 ["Fase III: Optimización y Reporte"]
+        D --> E["05. Optimización Robusta y MRSN"]
+        E --> F["06. Exportación de Reporte Excel"]
     end
     style A fill:#FAF8F5,stroke:#B45309,stroke-width:2px;
     style B fill:#FAF8F5,stroke:#B45309,stroke-width:2px;
