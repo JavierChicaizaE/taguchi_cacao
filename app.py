@@ -47,65 +47,65 @@ theme_mode = st.session_state.theme_mode
 
 # Paleta institucional para una interfaz tecnica y formal.
 if theme_mode == "Claro profesional":
-    bg_app = "#F7F9FC"
-    bg_sidebar = "#111827"
+    bg_app = "#F5F4F0"
+    bg_sidebar = "#243742"
     bg_card = "#FFFFFF"
-    bg_panel = "#EEF3F8"
-    border_color = "#D8E0EA"
-    text_main = "#111827"
-    text_muted = "#5B6675"
-    sidebar_text = "#F8FAFC"
-    sidebar_muted = "#AAB7C8"
-    accent_warm = "#2563EB"
-    accent_warm_hover = "#1D4ED8"
-    accent_cool = "#0F766E"
-    accent_gold = "#7DD3FC"
+    bg_panel = "#EAE9E2"
+    border_color = "#D4D3C4"
+    text_main = "#243742"
+    text_muted = "#2F4858"
+    sidebar_text = "#FFFFFF"
+    sidebar_muted = "#C8B592"
+    accent_warm = "#FF7700"
+    accent_warm_hover = "#E06600"
+    accent_cool = "#33658A"
+    accent_gold = "#F0BA19"
     bg_howto = "#FFFFFF"
-    border_howto = "#BFD3EA"
-    text_howto = "#172033"
+    border_howto = "#C8B592"
+    text_howto = "#243742"
     bg_metric = "#FFFFFF"
-    text_metric_val = "#111827"
+    text_metric_val = "#243742"
     bg_button_secondary = "#FFFFFF"
-    text_button_secondary = "#172033"
-    border_button_secondary = "#CBD5E1"
-    shadow_soft = "0 14px 34px rgba(15, 23, 42, 0.08)"
+    text_button_secondary = "#243742"
+    border_button_secondary = "#D4D3C4"
+    shadow_soft = "0 14px 34px rgba(36, 55, 66, 0.08)"
 
     plot_paper_bg = "rgba(0,0,0,0)"
     plot_plot_bg = "#FFFFFF"
-    plot_text_color = "#111827"
-    plot_grid_color = "#E2E8F0"
-    plotly_colorway = ["#2563EB", "#0F766E", "#7C3AED", "#475569", "#0284C7"]
-    TAGUCHI_SCALE = [[0, "#EAF2FF"], [0.5, "#2563EB"], [1, "#0F172A"]]
+    plot_text_color = "#243742"
+    plot_grid_color = "#EAE9E2"
+    plotly_colorway = ["#FF7700", "#33658A", "#69D1C5", "#2F4858", "#F0BA19"]
+    TAGUCHI_SCALE = [[0, "#F5F4F0"], [0.5, "#FF7700"], [1, "#243742"]]
 else:
-    bg_app = "#0B1120"
-    bg_sidebar = "#020617"
-    bg_card = "#111827"
-    bg_panel = "#0F172A"
-    border_color = "#253246"
-    text_main = "#E5EDF7"
-    text_muted = "#A8B3C5"
-    sidebar_text = "#F8FAFC"
-    sidebar_muted = "#94A3B8"
-    accent_warm = "#60A5FA"
-    accent_warm_hover = "#3B82F6"
-    accent_cool = "#2DD4BF"
-    accent_gold = "#93C5FD"
-    bg_howto = "#111827"
-    border_howto = "#29415F"
-    text_howto = "#E5EDF7"
-    bg_metric = "#111827"
-    text_metric_val = "#F8FAFC"
-    bg_button_secondary = "#111827"
-    text_button_secondary = "#E5EDF7"
-    border_button_secondary = "#334155"
-    shadow_soft = "0 14px 34px rgba(0, 0, 0, 0.26)"
+    bg_app = "#1E2A33"
+    bg_sidebar = "#18222A"
+    bg_card = "#243742"
+    bg_panel = "#2F4858"
+    border_color = "#2F4858"
+    text_main = "#EBF1F5"
+    text_muted = "#C8B592"
+    sidebar_text = "#EBF1F5"
+    sidebar_muted = "#C8B592"
+    accent_warm = "#FF7700"
+    accent_warm_hover = "#FF9233"
+    accent_cool = "#69D1C5"
+    accent_gold = "#F0BA19"
+    bg_howto = "#243742"
+    border_howto = "#2F4858"
+    text_howto = "#EBF1F5"
+    bg_metric = "#243742"
+    text_metric_val = "#EBF1F5"
+    bg_button_secondary = "#243742"
+    text_button_secondary = "#EBF1F5"
+    border_button_secondary = "#2F4858"
+    shadow_soft = "0 14px 34px rgba(0, 0, 0, 0.35)"
 
     plot_paper_bg = "rgba(0,0,0,0)"
-    plot_plot_bg = "#111827"
-    plot_text_color = "#E5EDF7"
-    plot_grid_color = "#253246"
-    plotly_colorway = ["#60A5FA", "#2DD4BF", "#A78BFA", "#94A3B8", "#38BDF8"]
-    TAGUCHI_SCALE = [[0, "#0F172A"], [0.5, "#60A5FA"], [1, "#E5EDF7"]]
+    plot_plot_bg = "#243742"
+    plot_text_color = "#EBF1F5"
+    plot_grid_color = "#2F4858"
+    plotly_colorway = ["#FF7700", "#69D1C5", "#F0BA19", "#33658A", "#C8B592"]
+    TAGUCHI_SCALE = [[0, "#1E2A33"], [0.5, "#FF7700"], [1, "#EBF1F5"]]
 
 # CSS visual: sistema profesional, sidebar fijo y componentes Streamlit refinados.
 st.markdown(f"""
@@ -658,38 +658,38 @@ RESPONSE_META = {
 with st.sidebar:
     st.markdown("""
     <div class="sidebar-card spec-card">
-        <div class="sidebar-header">📋 Ficha Técnica de Proceso</div>
+        <div class="sidebar-header">Ficha Técnica de Proceso</div>
         <div class="sidebar-desc">Tostado de Cacao Nacional (Ecuador)</div>
         <div class="sidebar-meta">
-            <div class="meta-item"><span class="meta-label">🌰 Materia Prima</span><span class="meta-val">Cacao Fino de Aroma</span></div>
-            <div class="meta-item"><span class="meta-label">⚙️ Operación</span><span class="meta-val">Tostado térmico</span></div>
-            <div class="meta-item"><span class="meta-label">🎯 Objetivo</span><span class="meta-val">Invariabilidad + Calidad</span></div>
+            <div class="meta-item"><span class="meta-label">Materia Prima</span><span class="meta-val">Cacao Fino de Aroma</span></div>
+            <div class="meta-item"><span class="meta-label">Operación</span><span class="meta-val">Tostado térmico</span></div>
+            <div class="meta-item"><span class="meta-label">Objetivo</span><span class="meta-val">Invariabilidad + Calidad</span></div>
         </div>
     </div>
     
     <div class="sidebar-card control-card">
-        <div class="sidebar-header">⚙️ Factores de Control (Matriz Interna)</div>
+        <div class="sidebar-header">Factores de Control (Matriz Interna)</div>
         <div class="sidebar-pill-container">
             <div class="sidebar-pill">
-                <span class="pill-title">🌡️ Temperatura de Control (<i>A</i>)</span>
+                <span class="pill-title">Temperatura de Control (<i>A</i>)</span>
                 <span class="pill-subtitle">Rango: 120°C &ndash; 160°C</span>
             </div>
             <div class="sidebar-pill">
-                <span class="pill-title">⏱️ Tiempo de Control (<i>B</i>)</span>
+                <span class="pill-title">Tiempo de Control (<i>B</i>)</span>
                 <span class="pill-subtitle">Rango: 10 &ndash; 30 min</span>
             </div>
         </div>
     </div>
     
     <div class="sidebar-card noise-card">
-        <div class="sidebar-header">🌧️ Factores de Ruido (Matriz Externa)</div>
+        <div class="sidebar-header">Factores de Ruido (Matriz Externa)</div>
         <div class="sidebar-pill-container">
             <div class="sidebar-pill">
-                <span class="pill-title">💧 Humedad Ambiental (<i>N</i><sub>1</sub>)</span>
+                <span class="pill-title">Humedad Ambiental (<i>N</i><sub>1</sub>)</span>
                 <span class="pill-subtitle">Extremos: 50% HR / 80% HR</span>
             </div>
             <div class="sidebar-pill">
-                <span class="pill-title">🌾 Humedad del Grano (<i>N</i><sub>2</sub>)</span>
+                <span class="pill-title">Humedad del Grano (<i>N</i><sub>2</sub>)</span>
                 <span class="pill-subtitle">Extremos: 5% / 8% (mismo RSM)</span>
             </div>
         </div>
