@@ -1,4 +1,4 @@
-# 🍫 Modelo robusto - Tostado de Cacao Nacional
+# Modelo robusto - Tostado de Cacao Nacional
 
 > **Diseño Robusto de Parámetros de Taguchi** aplicado al proceso de tostado térmico de Cacao Fino de Aroma (Nacional) para minimizar la variabilidad frente a factores de ruido ambiental e iniciales.
 
@@ -8,7 +8,7 @@
 
 ---
 
-## 🎯 Objetivos del Proyecto
+## Objetivos del Proyecto
 
 Este aplicativo interactivo implementa de forma independiente el **Diseño de Experimentos de Taguchi** para optimizar las propiedades de calidad del tostado de cacao. El objetivo principal es identificar la combinación de factores de control (Temperatura y Tiempo) que maximice los compuestos bioactivos y la aceptación sensorial, garantizando al mismo tiempo la **insensibilidad (robustez)** frente a las variaciones incontrolables de la humedad del grano y del entorno.
 
@@ -17,7 +17,7 @@ Este aplicativo interactivo implementa de forma independiente el **Diseño de Ex
 
 ---
 
-## 🧭 Navegación Metodológica y Flujo de Trabajo
+## Navegación Metodológica y Flujo de Trabajo
 
 La interfaz de usuario implementa un **asistente interactivo paso a paso** (Wizard/Stepper) en el contenido principal que guía de manera lógica al analista a través de las tres fases fundamentales del Diseño Robusto de Taguchi:
 
@@ -44,19 +44,19 @@ graph TD
 
 ---
 
-## 📊 Parámetros Experimentales
+## Parámetros Experimentales
 
-### ⚙️ Factores de Control (Matriz Interna $L_9$)
+### Factores de Control (Matriz Interna $L_9$)
 Son las variables que el operador puede fijar y ajustar en el tostador de café/cacao:
 * **Temperatura de Tostado ($A$):** Nivel 1 (120 °C) | Nivel 2 (140 °C) | Nivel 3 (160 °C)
 * **Tiempo de Tostado ($B$):** Nivel 1 (10 min) | Nivel 2 (20 min) | Nivel 3 (30 min)
 
-### 🌧️ Factores de Ruido (Matriz Externa $L_4$)
+### Factores de Ruido (Matriz Externa $L_4$)
 Variables difíciles de controlar en condiciones reales que inducen variabilidad:
 * **Humedad Ambiental ($N_1$):** Baja (50% HR) | Alta (80% HR)
 * **Humedad del Grano de Cacao ($N_2$):** Baja (5% humedad inicial) | Alta (8% humedad inicial)
 
-### 🍫 Respuestas de Calidad y Criterios Señal/Ruido ($S/N$)
+### Respuestas de Calidad y Criterios Señal/Ruido ($S/N$)
 1. **Polifenoles Totales (mg GAE/g):** Criterio *Mayor es Mejor* (LB) $\rightarrow$ Maximizar antioxidantes.
 2. **Actividad Antioxidante DPPH (% inhibición):** Criterio *Mayor es Mejor* (LB) $\rightarrow$ Preservar capacidad funcional.
 3. **Índice de Pardeamiento (Color L\*a\*b\*):** Criterio *Nominal es Mejor* (NB, Valor Objetivo = $45.0$) $\rightarrow$ Evitar tostado insuficiente o quemado.
@@ -64,7 +64,7 @@ Variables difíciles de controlar en condiciones reales que inducen variabilidad
 
 ---
 
-## 🧮 Fundamentos Matemáticos
+## Fundamentos Matemáticos
 
 El motor estadístico (`taguchi_core.py`) realiza de forma nativa los siguientes cálculos:
 
@@ -92,7 +92,7 @@ $$\text{MRSN}_j = \sum_{k=1}^{R} w_k \cdot \left[ \frac{SN_{j,k} - SN_{\min,k}}{
 
 ---
 
-## 📂 Estructura del Repositorio
+## Estructura del Repositorio
 
 El proyecto se encuentra dividido modularmente bajo la siguiente estructura limpia:
 
@@ -111,7 +111,7 @@ taguchi_cacao/
 
 ---
 
-## 🛠️ Instalación y Ejecución Local
+## Instalación y Ejecución Local
 
 ### Prerrequisitos
 * Python 3.8 o superior instalado en el sistema.
@@ -155,7 +155,7 @@ La terminal mostrará un enlace automático. Abre la dirección `http://localhos
 
 ---
 
-## 👥 Autores del Proyecto (Equipo Académico)
+## Autores del Proyecto (Equipo Académico)
 
 Este aplicativo interactivo fue diseñado e implementado por:
 * **Chicaiza Eduardo**
@@ -164,7 +164,7 @@ Este aplicativo interactivo fue diseñado e implementado por:
 
 ---
 
-## 🤖 Declaración de Uso de IA
+## Declaración de Uso de IA
 
 De acuerdo con las directrices académicas, se declara el uso de herramientas de Inteligencia Artificial en las siguientes fases del desarrollo:
 
