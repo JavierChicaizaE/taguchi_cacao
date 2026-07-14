@@ -181,7 +181,7 @@ st.markdown(f"""
     }}
     .topbar-title {{
         color: var(--text) !important;
-        font-size: 1.62rem !important;
+        font-size: 1.3rem !important;
         font-weight: 820 !important;
         text-transform: uppercase !important;
         letter-spacing: 0.04em !important;
@@ -354,7 +354,7 @@ st.markdown(f"""
     }}
     .hero-title {{
         color: var(--text) !important;
-        font-size: clamp(2.3rem, 3.2vw, 3.25rem) !important;
+        font-size: clamp(2.05rem, 2.85vw, 2.9rem) !important;
         line-height: 1.05;
         font-weight: 820 !important;
         margin: 0 0 0.7rem 0;
