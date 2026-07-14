@@ -3,7 +3,8 @@
 generate_report.py
 ==================
 Genera de forma programática el reporte técnico formal en formato Word (.docx).
-Aplica estilos, colores corporativos, tablas y la redacción académica detallada.
+Crea y añade los diagramas de arquitectura y gráficos estadísticos (Pareto, Efectos)
+usando matplotlib, insertándolos directamente en sus respectivas secciones.
 """
 
 import os
@@ -15,14 +16,99 @@ from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 
+# Configurar Matplotlib en modo no interactivo (headless) para evitar errores de GUI
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
 # Colores de la paleta corporativa
 COLOR_PRIMARY = RGBColor(36, 55, 66)      # #243742 (Azul Pizarra Oscuro)
 COLOR_SECONDARY = RGBColor(255, 119, 0)   # #FF7700 (Naranja Acento)
 COLOR_TEXT = RGBColor(34, 34, 34)         # #222222 (Negro Carbón)
 COLOR_MUTED = RGBColor(100, 116, 139)     # #64748B (Gris Slate)
 
+def generate_architecture_diagram():
+    """Genera el gráfico del diagrama de arquitectura de tres capas."""
+    fig, ax = plt.subplots(figsize=(8, 4.5), dpi=300)
+    ax.axis('off')
+    
+    # Estilos de cajas
+    box_blue = dict(boxstyle="round,pad=0.5", facecolor="#243742", edgecolor="#C8B592", lw=1.5)
+    box_orange = dict(boxstyle="round,pad=0.5", facecolor="#FF7700", edgecolor="#C8B592", lw=1.5)
+    box_light = dict(boxstyle="round,pad=0.5", facecolor="#F5F4F0", edgecolor="#243742", lw=1.5)
+    
+    # Dibujar bloques por capa
+    ax.text(0.5, 0.88, "CAPA DE PRESENTACIÓN (Interfaz Streamlit App - app.py)\n- Menú de Navegación Modular (Wizard/Stepper)\n- Ficha Técnica Lateral y Aumentos de Escala Hover", 
+            color="white", weight="bold", ha="center", va="center", bbox=box_blue, fontsize=8)
+    
+    ax.text(0.24, 0.48, "SIMULACIÓN FÍSICO-QUÍMICA\n(response_model.py)\n- Ecuaciones de Compuestos Bioactivos\n- Respuestas Calibradas y Ruido\n- Parámetros de Tostado", 
+            color="black", weight="bold", ha="center", va="center", bbox=box_light, fontsize=7.5)
+    
+    ax.text(0.76, 0.48, "MOTOR ANALÍTICO ESTADÍSTICO\n(taguchi_core.py)\n- Matrices L9 (Control) y L4 (Ruido)\n- Razón S/N (LB, SB, NB)\n- Contribuciones ANOVA y MRSN", 
+            color="black", weight="bold", ha="center", va="center", bbox=box_light, fontsize=7.5)
+            
+    ax.text(0.5, 0.08, "CAPA DE DATOS (data/cacao_taguchi_sintetico.csv)\n- Dataset Cruzado con 36 Corridas de Calidad\n- Registro de Temperaturas, Tiempos y Humedad", 
+            color="white", weight="bold", ha="center", va="center", bbox=box_orange, fontsize=8)
+            
+    # Dibujar flechas de conexión
+    ax.annotate("", xy=(0.25, 0.63), xytext=(0.42, 0.80), arrowprops=dict(arrowstyle="->", color="#243742", lw=1.5))
+    ax.annotate("", xy=(0.75, 0.63), xytext=(0.58, 0.80), arrowprops=dict(arrowstyle="->", color="#243742", lw=1.5))
+    
+    ax.annotate("", xy=(0.48, 0.18), xytext=(0.28, 0.33), arrowprops=dict(arrowstyle="<-", color="#FF7700", lw=1.5))
+    ax.annotate("", xy=(0.52, 0.18), xytext=(0.72, 0.33), arrowprops=dict(arrowstyle="->", color="#FF7700", lw=1.5))
+    
+    plt.tight_layout()
+    plt.savefig("temp_architecture.png", bbox_inches='tight')
+    plt.close()
+
+def generate_pareto_diagram():
+    """Genera la gráfica de barras de contribución ANOVA."""
+    fig, ax = plt.subplots(figsize=(6, 3.5), dpi=300)
+    factors = ["Temperatura (A)", "Tiempo (B)", "Error Residual"]
+    contribs = [54.6, 38.4, 7.0]
+    colors = ["#243742", "#FF7700", "#C8B592"]
+    
+    bars = ax.bar(factors, contribs, color=colors, width=0.48, edgecolor="#243742", linewidth=1.2)
+    ax.set_ylabel("Contribución Porcentual (%)", fontsize=9, weight="bold", color="#243742")
+    ax.set_title("Contribución Porcentual de los Factores sobre S/N", fontsize=10, weight="bold", color="#243742", pad=12)
+    ax.set_ylim(0, 100)
+    ax.grid(axis='y', linestyle='--', alpha=0.5)
+    
+    for bar in bars:
+        yval = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width()/2.0, yval + 2, f"{yval:.1f}%", ha='center', va='bottom', fontsize=8, weight="bold", color="#222222")
+        
+    plt.tight_layout()
+    plt.savefig("temp_pareto.png", bbox_inches='tight')
+    plt.close()
+
+def generate_effects_diagram():
+    """Genera la gráfica de efectos principales."""
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.5, 3.5), sharey=True, dpi=300)
+    
+    # Temperatura (A)
+    temp_levels = ["120 °C", "140 °C", "160 °C"]
+    temp_sn = [24.42, 27.18, 19.82]
+    
+    # Tiempo (B)
+    time_levels = ["10 min", "20 min", "30 min"]
+    time_sn = [22.14, 26.52, 23.01]
+    
+    ax1.plot(temp_levels, temp_sn, marker='o', markersize=7, color="#243742", linewidth=2.2, label="Temperatura")
+    ax1.set_title("Efecto de Temperatura (A)", fontsize=9, weight="bold", color="#243742")
+    ax1.set_ylabel("Razón S/N Promedio (dB)", fontsize=9, weight="bold", color="#243742")
+    ax1.grid(True, linestyle='--', alpha=0.4)
+    
+    ax2.plot(time_levels, time_sn, marker='s', markersize=7, color="#FF7700", linewidth=2.2, label="Tiempo")
+    ax2.set_title("Efecto de Tiempo (B)", fontsize=9, weight="bold", color="#243742")
+    ax2.grid(True, linestyle='--', alpha=0.4)
+    
+    fig.suptitle("Efectos Principales de Factores de Control sobre S/N", fontsize=10, weight="bold", color="#243742")
+    plt.tight_layout()
+    plt.savefig("temp_effects.png", bbox_inches='tight')
+    plt.close()
+
 def set_cell_background(cell, color_hex):
-    """Establece el color de fondo de una celda de tabla."""
     tc_pr = cell._tc.get_or_add_tcPr()
     shd = OxmlElement('w:shd')
     shd.set(qn('w:val'), 'clear')
@@ -31,7 +117,6 @@ def set_cell_background(cell, color_hex):
     tc_pr.append(shd)
 
 def set_cell_margins(cell, top=120, bottom=120, left=180, right=180):
-    """Establece las márgenes de celda (padding en dxa: 20 dxa = 1 pt)."""
     tc_pr = cell._tc.get_or_add_tcPr()
     tc_mar = OxmlElement('w:tcMar')
     for name, value in [('w:top', top), ('w:bottom', bottom), ('w:left', left), ('w:right', right)]:
@@ -42,7 +127,6 @@ def set_cell_margins(cell, top=120, bottom=120, left=180, right=180):
     tc_pr.append(tc_mar)
 
 def add_page_number(run):
-    """Agrega un campo dinámico de número de página de Word."""
     fldChar1 = OxmlElement('w:fldChar')
     fldChar1.set(qn('w:fldCharType'), 'begin')
     instrText = OxmlElement('w:instrText')
@@ -58,6 +142,11 @@ def add_page_number(run):
     run._r.append(fldChar3)
 
 def create_document():
+    # 1. Generar los tres gráficos
+    generate_architecture_diagram()
+    generate_pareto_diagram()
+    generate_effects_diagram()
+    
     doc = Document()
     
     # Configurar márgenes de página (2.54 cm / 1 in en todos los lados)
@@ -67,7 +156,7 @@ def create_document():
         section.left_margin = Inches(1.0)
         section.right_margin = Inches(1.0)
         
-        # Configurar encabezado y pie de página
+        # Encabezado
         header = section.header
         hp = header.paragraphs[0]
         hp.alignment = WD_ALIGN_PARAGRAPH.RIGHT
@@ -76,6 +165,7 @@ def create_document():
         hrun.font.size = Pt(8.5)
         hrun.font.color.rgb = COLOR_MUTED
         
+        # Pie de página
         footer = section.footer
         fp = footer.paragraphs[0]
         fp.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -139,7 +229,7 @@ def create_document():
 
     doc.add_page_break()
 
-    # --- MÉTODO PARA AÑADIR SECCIONES ---
+    # Métodos para encabezados y textos
     def add_heading_1(text):
         p = doc.add_paragraph()
         p.paragraph_format.space_before = Pt(24)
@@ -162,19 +252,6 @@ def create_document():
         run.font.size = Pt(13)
         run.font.bold = True
         run.font.color.rgb = COLOR_SECONDARY
-        return p
-
-    def add_heading_3(text):
-        p = doc.add_paragraph()
-        p.paragraph_format.space_before = Pt(12)
-        p.paragraph_format.space_after = Pt(4)
-        p.paragraph_format.keep_with_next = True
-        run = p.add_run(text)
-        run.font.name = 'Calibri'
-        run.font.size = Pt(11)
-        run.font.bold = True
-        run.font.italic = True
-        run.font.color.rgb = COLOR_PRIMARY
         return p
 
     def add_body(text):
@@ -301,7 +378,7 @@ def create_document():
     )
     
     add_body(
-        "La arquitectura del código se divide en tres capa bien definidas:\n"
+        "La arquitectura del código se divide en tres capas bien definidas:\n"
         "1. Capa de Modelado y Simulación (response_model.py): Implementa las funciones físico-químicas de simulación de "
         "respuestas calibradas mediante coeficientes polinomiales y de optimización no lineal (RSM), agregando un modelo "
         "de ruido gaussiano para emular condiciones de planta.\n"
@@ -313,6 +390,22 @@ def create_document():
         "con una paleta de colores institucional terrosa (#243742 para paneles oscuros, #FF7700 para acentos y #F5F4F0 "
         "para temas claros) y se configuró con una barra lateral estática para la visualización de la ficha del caso de estudio."
     )
+
+    # Insertar el Diagrama de Arquitectura generado
+    p_img = doc.add_paragraph()
+    p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_img.paragraph_format.space_before = Pt(8)
+    p_img.paragraph_format.space_after = Pt(4)
+    run_img = p_img.add_run()
+    run_img.add_picture("temp_architecture.png", width=Inches(5.8))
+    
+    p_cap = doc.add_paragraph()
+    p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_cap.paragraph_format.space_after = Pt(12)
+    run_cap = p_cap.add_run("Figura 1. Arquitectura de tres capas y flujo de datos del aplicativo.")
+    run_cap.font.size = Pt(9.0)
+    run_cap.font.italic = True
+    run_cap.font.color.rgb = COLOR_MUTED
 
     # ===========================================================================
     # 4. CASO DE PRUEBA Y DATOS
@@ -359,7 +452,6 @@ def create_document():
             set_cell_background(row_cells[col_idx], bg_color)
             set_cell_margins(row_cells[col_idx], top=100, bottom=100)
             p = row_cells[col_idx].paragraphs[0]
-            # Formatear el primer factor en negrita
             if col_idx == 0:
                 p.runs[0].font.bold = True
                 p.runs[0].font.size = Pt(9.5)
@@ -367,7 +459,7 @@ def create_document():
                 p.runs[0].font.size = Pt(9)
                 p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-    doc.add_paragraph().paragraph_format.space_before = Pt(6) # Espacio después de la tabla
+    doc.add_paragraph().paragraph_format.space_before = Pt(6)
     
     add_body(
         "El caso de prueba se alimenta con el set de datos calibrado de 36 corridas experimentales "
@@ -399,12 +491,44 @@ def create_document():
         "para la aceptación organoléptica se sitúa a 140 °C por 20 minutos, donde se alcanza el pardeamiento objetivo de 45.0."
     )
 
+    # Insertar el Gráfico de Efectos Principales generado
+    p_img_eff = doc.add_paragraph()
+    p_img_eff.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_img_eff.paragraph_format.space_before = Pt(8)
+    p_img_eff.paragraph_format.space_after = Pt(4)
+    run_img_eff = p_img_eff.add_run()
+    run_img_eff.add_picture("temp_effects.png", width=Inches(5.0))
+    
+    p_cap_eff = doc.add_paragraph()
+    p_cap_eff.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_cap_eff.paragraph_format.space_after = Pt(12)
+    run_cap_eff = p_cap_eff.add_run("Figura 2. Gráfico de efectos principales para Temperatura (A) y Tiempo (B).")
+    run_cap_eff.font.size = Pt(9.0)
+    run_cap_eff.font.italic = True
+    run_cap_eff.font.color.rgb = COLOR_MUTED
+
     add_body(
         "El análisis de Pareto ANOVA indica que la Temperatura de Tostado representa aproximadamente el 54.6% de la "
         "contribución sobre la varianza de la razón S/N del proceso, mientras que el Tiempo de Tostado aporta el 38.4%, "
         "siendo el error residual del 7.0%. Esto valida que el control de la temperatura es el factor de diseño más "
         "influyente para amortiguar el impacto del ruido de la humedad."
     )
+
+    # Insertar el Gráfico de Pareto generado
+    p_img_par = doc.add_paragraph()
+    p_img_par.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_img_par.paragraph_format.space_before = Pt(8)
+    p_img_par.paragraph_format.space_after = Pt(4)
+    run_img_par = p_img_par.add_run()
+    run_img_par.add_picture("temp_pareto.png", width=Inches(4.5))
+    
+    p_cap_par = doc.add_paragraph()
+    p_cap_par.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_cap_par.paragraph_format.space_after = Pt(12)
+    run_cap_par = p_cap_par.add_run("Figura 3. Impacto porcentual de factores de control en la variabilidad S/N.")
+    run_cap_par.font.size = Pt(9.0)
+    run_cap_par.font.italic = True
+    run_cap_par.font.color.rgb = COLOR_MUTED
 
     add_body(
         "Al aplicar la optimización multirespuesta ponderada mediante el índice MRSN (asignando un peso de 1.5 a la "
@@ -457,8 +581,23 @@ def create_document():
         run = p.add_run(f"[{i+1}] {ref}")
         run.font.size = Pt(9.5)
         
-    doc.save("Reporte_Tecnico_Taguchi_Cacao.docx")
-    print("Reporte generado exitosamente.")
+    try:
+        doc.save("Reporte_Tecnico_Taguchi_Cacao.docx")
+        print("Reporte generado exitosamente en Reporte_Tecnico_Taguchi_Cacao.docx.")
+    except PermissionError:
+        doc.save("Reporte_Tecnico_Taguchi_Cacao_con_Graficos.docx")
+        print("Reporte generado exitosamente en Reporte_Tecnico_Taguchi_Cacao_con_Graficos.docx.")
+    
+    # 3. Eliminar archivos temporales de imagen para mantener limpio el repositorio
+    try:
+        if os.path.exists("temp_architecture.png"):
+            os.remove("temp_architecture.png")
+        if os.path.exists("temp_pareto.png"):
+            os.remove("temp_pareto.png")
+        if os.path.exists("temp_effects.png"):
+            os.remove("temp_effects.png")
+    except Exception as e:
+        print(f"Error al eliminar archivos temporales: {e}")
 
 if __name__ == '__main__':
     create_document()
