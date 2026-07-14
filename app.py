@@ -181,10 +181,10 @@ st.markdown(f"""
     }}
     .topbar-title {{
         color: var(--text) !important;
-        font-size: 0.78rem !important;
+        font-size: 1.62rem !important;
         font-weight: 820 !important;
         text-transform: uppercase !important;
-        letter-spacing: 0.08em !important;
+        letter-spacing: 0.04em !important;
         margin-bottom: 0.22rem !important;
     }}
     .topbar-subtitle {{
@@ -354,7 +354,7 @@ st.markdown(f"""
     }}
     .hero-title {{
         color: var(--text) !important;
-        font-size: clamp(1.9rem, 2.7vw, 2.72rem);
+        font-size: clamp(2.3rem, 3.2vw, 3.25rem) !important;
         line-height: 1.05;
         font-weight: 820 !important;
         margin: 0 0 0.7rem 0;
@@ -499,32 +499,54 @@ st.markdown(f"""
     div[data-testid="stMetricValue"] {{ color: {text_metric_val} !important; font-size: 1.68rem !important; font-weight: 800 !important; letter-spacing: 0 !important; }}
     div[data-testid="stMetricLabel"] {{ color: var(--accent-cool) !important; font-size: 0.72rem !important; font-weight: 800 !important; text-transform: uppercase !important; letter-spacing: 0.06em !important; }}
 
-    button[data-testid^="baseButton-"] {{
+    /* BOTONES PRIMARIOS, SECUNDARIOS Y DESCARGAS */
+    button[data-testid^="stBaseButton-"] {{
         border-radius: 7px !important;
         font-weight: 720 !important;
         font-size: 0.84rem !important;
         min-height: 2.35rem !important;
         transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease !important;
     }}
-    button[data-testid="baseButton-primary"] {{
+    button[data-testid="stBaseButton-primary"] {{
         background: var(--accent) !important;
         border: 1px solid var(--accent) !important;
         color: #FFFFFF !important;
-        box-shadow: 0 8px 18px rgba(37,99,235,0.20) !important;
+        box-shadow: 0 8px 18px rgba(255,119,0,0.18) !important;
     }}
-    button[data-testid="baseButton-primary"]:hover {{ background: var(--accent-hover) !important; border-color: var(--accent-hover) !important; transform: translateY(-1px); }}
-    button[data-testid="baseButton-secondary"] {{
+    button[data-testid="stBaseButton-primary"]:hover,
+    button[data-testid="stBaseButton-primary"]:active,
+    button[data-testid="stBaseButton-primary"]:focus {{
+        background: var(--accent-hover) !important;
+        border-color: var(--accent-hover) !important;
+        color: #FFFFFF !important;
+        transform: translateY(-1px);
+    }}
+    button[data-testid="stBaseButton-secondary"] {{
         background: {bg_button_secondary} !important;
         border: 1px solid {border_button_secondary} !important;
         color: {text_button_secondary} !important;
     }}
-    button[data-testid="baseButton-secondary"]:hover {{ border-color: var(--accent) !important; color: var(--accent) !important; }}
-    button[data-testid="baseButton-download"] {{
+    button[data-testid="stBaseButton-secondary"]:hover,
+    button[data-testid="stBaseButton-secondary"]:active,
+    button[data-testid="stBaseButton-secondary"]:focus {{
+        background: {bg_panel} !important;
+        border-color: var(--accent) !important;
+        color: var(--accent) !important;
+    }}
+    button[data-testid="stBaseButton-download"] {{
         background: var(--accent-cool) !important;
         border: 1px solid var(--accent-cool) !important;
         color: #FFFFFF !important;
     }}
+    button[data-testid="stBaseButton-download"]:hover,
+    button[data-testid="stBaseButton-download"]:active,
+    button[data-testid="stBaseButton-download"]:focus {{
+        background: var(--accent-cool) !important;
+        border-color: var(--accent-cool) !important;
+        color: #FFFFFF !important;
+    }}
 
+    /* INPUTS Y SELECTS */
     div[data-baseweb="select"] > div,
     div[data-baseweb="input"] > div,
     textarea {{
@@ -544,6 +566,7 @@ st.markdown(f"""
     }}
     ul[role="listbox"] li:hover, ul[role="listbox"] li[aria-selected="true"] {{ background: var(--accent) !important; color: #FFFFFF !important; }}
 
+    /* DATAFRAMES Y TABLAS */
     div[data-testid="stDataFrame"], div[data-testid="stTable"] {{
         border: 1px solid var(--border) !important;
         border-radius: 8px !important;
@@ -553,6 +576,7 @@ st.markdown(f"""
     table, tr, td, th {{ background-color: var(--card-bg) !important; color: var(--text) !important; border-color: var(--border) !important; }}
     thead th {{ background-color: var(--panel-bg) !important; color: var(--text) !important; font-weight: 800 !important; }}
 
+    /* HOWTO BOX */
     .howto {{
         background: {bg_howto} !important;
         border: 1px solid {border_howto} !important;
