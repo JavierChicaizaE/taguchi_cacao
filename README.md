@@ -1,4 +1,4 @@
-# 🍫 Taguchi · Tostado de Cacao Nacional (Ecuador)
+# 🍫 Modelo robusto - Tostado de Cacao Nacional
 
 > **Diseño Robusto de Parámetros de Taguchi** aplicado al proceso de tostado térmico de Cacao Fino de Aroma (Nacional) para minimizar la variabilidad frente a factores de ruido ambiental e iniciales.
 

@@ -16,12 +16,11 @@ import plotly.express as px
 import plotly.io as pio
 
 st.set_page_config(
-    page_title="Taguchi - Tostado de Cacao Nacional",
+    page_title="Modelo robusto - Tostado de Cacao Nacional",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Silenciar logs recurrentes de health check (/_stcore/health) en consola
 logging.getLogger("streamlit").setLevel(logging.WARNING)
 
 from taguchi_core import (
@@ -39,451 +38,588 @@ except Exception:
     PARDEAMIENTO_TARGET = 45.0
 
 # ---------------------------------------------------------------------------
-# SELECTOR DE TEMA EN EL SIDEBAR (Modo Claro vs Modo Oscuro)
+# TEMA VISUAL (renderizado en topbar, no en sidebar)
 # ---------------------------------------------------------------------------
-st.sidebar.markdown('<div class="sidebar-header">Personalización</div>', unsafe_allow_html=True)
-theme_mode = st.sidebar.radio(
-    "Tema visual del aplicativo",
-    ["Claro (Editorial)", "Oscuro (Técnico)"],
-    label_visibility="visible"
-)
+THEME_OPTIONS = ["Claro profesional", "Oscuro técnico"]
+if "theme_mode" not in st.session_state:
+    st.session_state.theme_mode = THEME_OPTIONS[0]
+theme_mode = st.session_state.theme_mode
 
-# Definir variables de color de la paleta terrosa según el tema elegido
-if theme_mode == "Claro (Editorial)":
-    bg_app = "#FAF8F5"
-    bg_sidebar = "#FFFFFF"
+# Paleta institucional para una interfaz tecnica y formal.
+if theme_mode == "Claro profesional":
+    bg_app = "#F7F9FC"
+    bg_sidebar = "#111827"
     bg_card = "#FFFFFF"
-    border_color = "#EADED6"
-    text_main = "#2E1B10"
-    text_muted = "#6C5D53"
-    accent_warm = "#B45309"
-    accent_cool = "#475569"
-    bg_howto = "#FDFBF7"
-    border_howto = "#EADED6"
-    text_howto = "#5C3D24"
+    bg_panel = "#EEF3F8"
+    border_color = "#D8E0EA"
+    text_main = "#111827"
+    text_muted = "#5B6675"
+    sidebar_text = "#F8FAFC"
+    sidebar_muted = "#AAB7C8"
+    accent_warm = "#2563EB"
+    accent_warm_hover = "#1D4ED8"
+    accent_cool = "#0F766E"
+    accent_gold = "#7DD3FC"
+    bg_howto = "#FFFFFF"
+    border_howto = "#BFD3EA"
+    text_howto = "#172033"
     bg_metric = "#FFFFFF"
-    text_metric_val = "#2E1B10"
+    text_metric_val = "#111827"
     bg_button_secondary = "#FFFFFF"
-    text_button_secondary = "#2E1B10"
-    border_button_secondary = "#D1C7BD"
-    
-    # Plotly
+    text_button_secondary = "#172033"
+    border_button_secondary = "#CBD5E1"
+    shadow_soft = "0 14px 34px rgba(15, 23, 42, 0.08)"
+
     plot_paper_bg = "rgba(0,0,0,0)"
     plot_plot_bg = "#FFFFFF"
-    plot_text_color = "#2E1B10"
-    plot_grid_color = "#EADED6"
-    plotly_colorway = ["#B45309", "#475569", "#78350F", "#1E293B"]
-    TAGUCHI_SCALE = [[0, "#FAF8F5"], [0.5, "#B45309"], [1, "#2E1B10"]]
+    plot_text_color = "#111827"
+    plot_grid_color = "#E2E8F0"
+    plotly_colorway = ["#2563EB", "#0F766E", "#7C3AED", "#475569", "#0284C7"]
+    TAGUCHI_SCALE = [[0, "#EAF2FF"], [0.5, "#2563EB"], [1, "#0F172A"]]
 else:
-    bg_app = "#160F0A"
-    bg_sidebar = "#1F150F"
-    bg_card = "#2A1E16"
-    border_color = "#3D2B20"
-    text_main = "#FAF8F5"
-    text_muted = "#A89B90"
-    accent_warm = "#F59E0B"
-    accent_cool = "#94A3B8"
-    bg_howto = "#201610"
-    border_howto = "#3D2B20"
-    text_howto = "#FAF8F5"
-    bg_metric = "#2A1E16"
-    text_metric_val = "#FAF8F5"
-    bg_button_secondary = "#2A1E16"
-    text_button_secondary = "#FAF8F5"
-    border_button_secondary = "#3D2B20"
-    
-    # Plotly
-    plot_paper_bg = "rgba(0,0,0,0)"
-    plot_plot_bg = "#2A1E16"
-    plot_text_color = "#FAF8F5"
-    plot_grid_color = "#3D2B20"
-    plotly_colorway = ["#F59E0B", "#94A3B8", "#D97706", "#475569"]
-    TAGUCHI_SCALE = [[0, "#160F0A"], [0.5, "#F59E0B"], [1, "#FAF8F5"]]
+    bg_app = "#0B1120"
+    bg_sidebar = "#020617"
+    bg_card = "#111827"
+    bg_panel = "#0F172A"
+    border_color = "#253246"
+    text_main = "#E5EDF7"
+    text_muted = "#A8B3C5"
+    sidebar_text = "#F8FAFC"
+    sidebar_muted = "#94A3B8"
+    accent_warm = "#60A5FA"
+    accent_warm_hover = "#3B82F6"
+    accent_cool = "#2DD4BF"
+    accent_gold = "#93C5FD"
+    bg_howto = "#111827"
+    border_howto = "#29415F"
+    text_howto = "#E5EDF7"
+    bg_metric = "#111827"
+    text_metric_val = "#F8FAFC"
+    bg_button_secondary = "#111827"
+    text_button_secondary = "#E5EDF7"
+    border_button_secondary = "#334155"
+    shadow_soft = "0 14px 34px rgba(0, 0, 0, 0.26)"
 
-# Inyección de CSS Terroso Premium con tipografías mixtas (Playfair Serif / Inter / JetBrains Mono)
+    plot_paper_bg = "rgba(0,0,0,0)"
+    plot_plot_bg = "#111827"
+    plot_text_color = "#E5EDF7"
+    plot_grid_color = "#253246"
+    plotly_colorway = ["#60A5FA", "#2DD4BF", "#A78BFA", "#94A3B8", "#38BDF8"]
+    TAGUCHI_SCALE = [[0, "#0F172A"], [0.5, "#60A5FA"], [1, "#E5EDF7"]]
+
+# CSS visual: sistema profesional, sidebar fijo y componentes Streamlit refinados.
 st.markdown(f"""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+    :root {{
+        --app-bg: {bg_app};
+        --sidebar-bg: {bg_sidebar};
+        --card-bg: {bg_card};
+        --panel-bg: {bg_panel};
+        --border: {border_color};
+        --text: {text_main};
+        --muted: {text_muted};
+        --sidebar-text: {sidebar_text};
+        --sidebar-muted: {sidebar_muted};
+        --accent: {accent_warm};
+        --accent-hover: {accent_warm_hover};
+        --accent-cool: {accent_cool};
+        --accent-gold: {accent_gold};
+        --shadow-soft: {shadow_soft};
+        --sidebar-width: 340px;
+    }}
 
     html, body, [class*="css"] {{
-        font-family: 'Inter', sans-serif !important;
-        background-color: {bg_app} !important;
-        color: {text_main} !important;
+        font-family: "Segoe UI", Inter, Arial, sans-serif !important;
+        background-color: var(--app-bg) !important;
+        color: var(--text) !important;
     }}
     #MainMenu, footer, header {{ visibility: hidden; }}
 
-    .block-container {{ padding-top: 2rem !important; padding-left: 2rem !important; padding-right: 2rem !important; max-width: 1300px !important; }}
-
-    div[data-testid="stAppViewContainer"] {{
-        background: {bg_app} !important;
-    }}
+    div[data-testid="stAppViewContainer"] {{ background: var(--app-bg) !important; }}
     div[data-testid="stMain"] {{ background: transparent !important; }}
-
-    /* Títulos editoriales */
-    h1, h2, h3, h4, .hero-title {{
-        font-family: 'Playfair Display', serif !important;
-        font-weight: 700 !important;
-        color: {text_main} !important;
-        letter-spacing: -0.02em !important;
+    .block-container {{
+        max-width: 1360px !important;
+        padding: 1.1rem 2rem 3rem !important;
     }}
 
-    /* Datos y tablas monoespaciadas */
-    [data-testid="stMetricValue"], [data-testid="stDataFrame"], code, pre, td, th {{
-        font-family: 'JetBrains Mono', monospace !important;
+    @media (min-width: 900px) {{
+        section[data-testid="stSidebar"] {{
+            position: relative !important;
+            width: var(--sidebar-width) !important;
+            min-width: var(--sidebar-width) !important;
+            max-width: var(--sidebar-width) !important;
+            height: 100vh !important;
+            overflow-y: auto !important;
+            z-index: 2 !important;
+            transform: translateX(0) !important;
+            visibility: visible !important;
+        }}
+        section[data-testid="stSidebar"] > div:first-child {{
+            width: var(--sidebar-width) !important;
+            min-width: var(--sidebar-width) !important;
+        }}
+        div[data-testid="stMain"] {{
+            width: calc(100vw - var(--sidebar-width)) !important;
+        }}
     }}
 
-    /* Ocultar control de colapsado del sidebar para mantenerlo fijo */
-    [data-testid="collapsedControl"] {{
+    [data-testid="collapsedControl"], [data-testid="stSidebarCollapseButton"] {{
         display: none !important;
     }}
 
-    /* SIDEBAR */
-    section[data-testid="stSidebar"] {{
-        background: {bg_sidebar} !important;
-        border-right: 1px solid {border_color} !important;
-    }}
-    section[data-testid="stSidebar"] p,
-    section[data-testid="stSidebar"] span,
-    section[data-testid="stSidebar"] div,
-    section[data-testid="stSidebar"] h3,
-    section[data-testid="stSidebar"] label {{
-        color: {text_main} !important;
-    }}
-
-    /* Cards */
-    .sidebar-card {{
-        background: {bg_card} !important;
-        border: 1px solid {border_color} !important;
+    .topbar {{
+        background: var(--card-bg) !important;
+        border: 1px solid var(--border) !important;
         border-radius: 8px !important;
-        padding: 1rem !important;
-        margin-bottom: 0.75rem !important;
-    }}
-    .sidebar-header {{
-        font-size: 0.68rem !important;
-        font-weight: 700 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.08em !important;
-        color: {accent_warm} !important;
-        margin-bottom: 0.5rem !important;
-    }}
-    .sidebar-desc {{
-        font-size: 0.85rem !important;
-        color: {text_main} !important;
-        font-weight: 700 !important;
-        margin-bottom: 0.6rem !important;
-    }}
-    .sidebar-meta {{ display: flex !important; flex-direction: column !important; gap: 0.35rem !important; }}
-    .meta-item {{
-        display: flex !important;
-        justify-content: space-between !important;
-        font-size: 0.75rem !important;
-        border-bottom: 1px solid {border_color} !important;
-        padding-bottom: 0.25rem !important;
-    }}
-    .meta-item:last-child {{ border-bottom: none !important; }}
-    .meta-label {{ color: {text_muted} !important; }}
-    .meta-val {{ color: {text_main} !important; font-weight: 600 !important; }}
-    
-    .sidebar-pill-container {{ display: flex !important; flex-direction: column !important; gap: 0.4rem !important; }}
-    .sidebar-pill {{
-        background: {bg_sidebar} !important;
-        border: 1px solid {border_color} !important;
-        border-radius: 6px !important;
-        padding: 0.5rem 0.75rem !important;
+        padding: 0.95rem 1.08rem !important;
+        margin: 0 0 1rem !important;
+        box-shadow: var(--shadow-soft) !important;
+        min-height: 5.1rem !important;
         display: flex !important;
         flex-direction: column !important;
+        justify-content: center !important;
     }}
-    .pill-title {{ font-size: 0.8rem !important; font-weight: 600 !important; color: {text_main} !important; }}
-    .pill-subtitle {{ font-size: 0.72rem !important; color: {text_muted} !important; margin-top: 1px; }}
+    .topbar-title {{
+        color: var(--text) !important;
+        font-size: 0.78rem !important;
+        font-weight: 820 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.08em !important;
+        margin-bottom: 0.22rem !important;
+    }}
+    .topbar-subtitle {{
+        color: var(--muted) !important;
+        font-size: 0.9rem !important;
+        line-height: 1.35 !important;
+    }}
+    .theme-shell {{
+        background: var(--card-bg) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 8px !important;
+        padding: 0.78rem 0.9rem 0.72rem !important;
+        margin: 0 0 0.45rem !important;
+        box-shadow: var(--shadow-soft) !important;
+        min-height: 2.65rem !important;
+    }}
+    .theme-label {{
+        color: var(--muted) !important;
+        font-size: 0.68rem !important;
+        font-weight: 820 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.07em !important;
+        margin-bottom: 0.1rem !important;
+    }}
+    .theme-value {{
+        color: var(--text) !important;
+        font-size: 0.86rem !important;
+        font-weight: 740 !important;
+        line-height: 1.2 !important;
+    }}
+    .st-key-theme_light button,
+    .st-key-theme_dark button {{
+        min-height: 2.45rem !important;
+        border-radius: 999px !important;
+        padding: 0.38rem 0.8rem !important;
+        font-size: 0.88rem !important;
+        font-weight: 760 !important;
+        white-space: nowrap !important;
+        box-shadow: none !important;
+    }}
+    .st-key-theme_light p,
+    .st-key-theme_dark p {{
+        font-size: 0.88rem !important;
+        font-weight: 760 !important;
+        line-height: 1 !important;
+        margin: 0 !important;
+    }}
 
-    /* HERO */
-    .hero {{
-        background: linear-gradient(135deg, #2E1B10 0%, #3E2212 40%, #5C3D24 75%, #8B5E34 100%);
-        border-radius: 12px;
-        padding: 0;
-        margin-bottom: 1.75rem;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        min-height: 200px;
-        position: relative;
-        overflow: hidden;
-        border: 1px solid {border_color};
-        box-shadow: 0 4px 20px rgba(46,27,16,0.15);
+    h1, h2, h3, h4 {{
+        font-family: "Segoe UI", Inter, Arial, sans-serif !important;
+        color: var(--text) !important;
+        font-weight: 760 !important;
+        letter-spacing: 0 !important;
     }}
-    .hero::before {{
-        content: "";
-        position: absolute; inset: 0;
-        background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
-        background-size: 20px 20px;
-        pointer-events: none;
-        z-index: 0;
+    h2, h3 {{ margin-top: 1.2rem !important; }}
+    p, li, label, span, div[data-testid="stMarkdownContainer"] {{ color: var(--text) !important; }}
+    div[data-testid="stMarkdownContainer"] p,
+    div[data-testid="stMarkdownContainer"] li {{ line-height: 1.62 !important; }}
+    code, pre, td, th, [data-testid="stMetricValue"] {{
+        font-family: "Cascadia Mono", "Consolas", monospace !important;
+    }}
+
+    section[data-testid="stSidebar"] {{
+        background: var(--sidebar-bg) !important;
+        border-right: 1px solid rgba(148,163,184,0.22) !important;
+        box-shadow: 8px 0 22px rgba(15,23,42,0.10) !important;
+    }}
+    section[data-testid="stSidebar"] > div {{
+        padding: 1.05rem 0.9rem 1.25rem !important;
+    }}
+    section[data-testid="stSidebar"] * {{ color: var(--sidebar-text) !important; }}
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] p {{ color: var(--sidebar-text) !important; font-weight: 600 !important; }}
+    section[data-testid="stSidebar"] div[role="radiogroup"] label {{
+        background: rgba(255,255,255,0.045) !important;
+        border: 1px solid rgba(148,163,184,0.22) !important;
+        border-radius: 7px !important;
+        padding: 0.45rem 0.55rem !important;
+        margin-bottom: 0.35rem !important;
+    }}
+
+    .sidebar-card {{
+        background: rgba(255,255,255,0.045) !important;
+        border: 1px solid rgba(148,163,184,0.20) !important;
+        border-radius: 8px !important;
+        padding: 0.92rem !important;
+        margin: 0 0 0.85rem !important;
+        box-shadow: none !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important;
+    }}
+    .sidebar-card:hover {{
+        background: rgba(255,255,255,0.07) !important;
+        transform: translateY(-2px);
+    }}
+    .spec-card {{
+        border-left: 4px solid var(--accent-cool) !important;
+    }}
+    .control-card {{
+        border-left: 4px solid var(--accent) !important;
+    }}
+    .noise-card {{
+        border-left: 4px solid var(--accent-gold) !important;
+    }}
+    .sidebar-header {{
+        color: var(--accent-gold) !important;
+        font-size: 0.69rem !important;
+        font-weight: 800 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.08em !important;
+        margin: 0 0 0.55rem !important;
+    }}
+    .sidebar-desc {{
+        color: var(--sidebar-text) !important;
+        font-size: 0.92rem !important;
+        line-height: 1.35 !important;
+        font-weight: 750 !important;
+        margin-bottom: 0.8rem !important;
+    }}
+    .sidebar-meta {{ display: grid !important; gap: 0.42rem !important; }}
+    .meta-item {{
+        display: grid !important;
+        grid-template-columns: 1fr auto !important;
+        gap: 0.55rem !important;
+        align-items: center !important;
+        padding-top: 0.42rem !important;
+        border-top: 1px solid rgba(255,255,255,0.10) !important;
+    }}
+    .meta-label, .pill-subtitle {{ color: var(--sidebar-muted) !important; font-size: 0.73rem !important; }}
+    .meta-val {{ color: var(--sidebar-text) !important; font-size: 0.73rem !important; font-weight: 760 !important; text-align: right !important; }}
+    .sidebar-pill-container {{ display: grid !important; gap: 0.46rem !important; }}
+    .sidebar-pill {{
+        background: rgba(15,23,42,0.30) !important;
+        border: 1px solid rgba(148,163,184,0.20) !important;
+        border-radius: 7px !important;
+        padding: 0.62rem 0.72rem !important;
+        display: grid !important;
+        gap: 0.12rem !important;
+    }}
+    .pill-title {{ color: var(--sidebar-text) !important; font-size: 0.8rem !important; font-weight: 760 !important; }}
+
+    .hero {{
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        margin-bottom: 1.35rem;
+        display: grid;
+        grid-template-columns: minmax(0, 1.16fr) minmax(330px, 0.84fr);
+        min-height: 286px;
+        overflow: hidden;
+        box-shadow: var(--shadow-soft);
+        position: relative;
     }}
     .hero-left {{
-        padding: 2.5rem 2.5rem 2.5rem 3rem;
-        z-index: 2;
+        padding: 2rem 2.2rem 1.8rem;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        border-right: 1px solid rgba(255,255,255,0.1);
+        border-left: 5px solid var(--accent);
+        border-right: 1px solid var(--border);
     }}
-    .hero-tag {{
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: rgba(255,255,255,0.12);
-        border: 1px solid rgba(255,255,255,0.18);
-        border-radius: 4px;
-        padding: 4px 12px;
-        font-size: 0.68rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        color: #FAF8F5;
-        margin-bottom: 14px;
-        width: fit-content;
+    .hero-right {{
+        padding: 1.45rem;
+        background: var(--panel-bg);
+        display: grid;
+        grid-template-rows: auto auto auto;
+        gap: 0.95rem;
     }}
     .hero-title {{
-        font-weight: 900;
-        font-size: 2.1rem;
-        line-height: 1.15;
-        color: #FFFFFF !important;
-        margin: 0 0 10px 0;
-        letter-spacing: -0.03em;
+        color: var(--text) !important;
+        font-size: clamp(1.9rem, 2.7vw, 2.72rem);
+        line-height: 1.05;
+        font-weight: 820 !important;
+        margin: 0 0 0.7rem 0;
+        letter-spacing: 0 !important;
     }}
     .hero-title span {{
         display: block;
-        font-size: 1.15rem;
-        font-weight: 600;
-        color: #FAF8F5 !important;
-        letter-spacing: -0.01em;
-        margin-top: 6px;
+        color: var(--muted) !important;
+        font-size: 1.02rem;
+        line-height: 1.35;
+        font-weight: 650;
+        margin-top: 0.52rem;
     }}
     .hero-desc {{
-        font-size: 0.9rem;
-        color: #FAF8F5 !important;
-        line-height: 1.65;
-        margin: 0;
-        max-width: 440px;
-        font-weight: 400;
-        opacity: 0.9;
+        max-width: 780px;
+        color: var(--muted) !important;
+        font-size: 0.96rem;
+        line-height: 1.58;
+        margin: 0 0 1rem 0;
     }}
-    .hero-right {{
-        padding: 2rem 2.5rem 2rem 2rem;
-        z-index: 2;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        gap: 0.85rem;
+    .hero-kpis {{
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.62rem;
+    }}
+    .hero-kpi {{
+        background: var(--panel-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text) !important;
+        font-size: 0.8rem;
+        font-weight: 760;
+        padding: 0.66rem 0.72rem;
+    }}
+    .hero-kpi strong {{
+        display: block;
+        color: var(--accent) !important;
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 0.12rem;
+    }}
+    .hero-method {{
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 0.65rem;
+    }}
+    .method-box {{
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.75rem;
+        min-height: 4.8rem;
+    }}
+    .method-label {{
+        color: var(--muted) !important;
+        font-size: 0.66rem;
+        font-weight: 820;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-bottom: 0.28rem;
+    }}
+    .method-main {{
+        color: var(--text) !important;
+        font-size: 1.18rem;
+        font-weight: 840;
+        line-height: 1;
+    }}
+    .method-sub {{
+        color: var(--muted) !important;
+        font-size: 0.75rem;
+        margin-top: 0.22rem;
+    }}
+    .method-arrow {{
+        color: var(--accent) !important;
+        font-size: 1.3rem;
+        font-weight: 840;
+    }}
+    .hero-panel-title {{
+        color: var(--text) !important;
+        font-size: 0.95rem;
+        font-weight: 820;
+        margin: 0;
+    }}
+    .hero-panel-copy {{
+        color: var(--muted) !important;
+        font-size: 0.82rem;
+        line-height: 1.45;
+        margin: 0;
     }}
     .hero-group-label {{
-        font-size: 0.65rem;
-        font-weight: 700;
+        color: var(--accent-cool) !important;
+        font-size: 0.7rem;
+        font-weight: 820;
         text-transform: uppercase;
-        letter-spacing: 0.14em;
-        color: rgba(255,255,255,0.6);
-        margin-bottom: 2px;
+        letter-spacing: 0.08em;
     }}
-    .hero-members-grid {{
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-    }}
+    .hero-divider {{ height: 1px; background: var(--border); }}
+    .hero-members-grid {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }}
     .hero-member-card {{
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.12);
+        background: var(--card-bg);
+        border: 1px solid var(--border);
         border-radius: 8px;
-        padding: 8px 12px;
-        transition: background 0.2s ease;
+        padding: 0.62rem;
+        display: grid;
+        grid-template-columns: auto;
+        align-items: center;
+        justify-items: center;
+        text-align: center;
+        gap: 0.4rem;
     }}
-    .hero-member-card:hover {{
-        background: rgba(255,255,255,0.15);
+    .hero-member-avatar {{
+        width: 2rem;
+        height: 2rem;
+        border-radius: 999px;
+        display: grid;
+        place-items: center;
+        background: rgba(37,99,235,0.12);
+        border: 1px solid rgba(37,99,235,0.25);
+        color: var(--accent) !important;
+        font-size: 0.74rem;
+        font-weight: 840;
     }}
-    .hero-member-name {{
-        font-size: 0.82rem;
-        font-weight: 600;
-        color: #FFFFFF;
-        line-height: 1.2;
-    }}
-    .hero-divider {{
-        width: 100%;
-        height: 1px;
-        background: rgba(255,255,255,0.12);
-        margin: 2px 0;
-    }}
-
-    /* TABS */
-    .stTabs [data-baseweb="tab-list"] {{
-        gap: 0; border-bottom: 2px solid {border_color} !important;
-        background: transparent; padding-bottom: 0;
-    }}
-    .stTabs [data-baseweb="tab"] {{
-        font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.88rem;
-        color: {text_muted} !important; padding: 10px 20px;
-        background: transparent; border: none;
-        transition: all 0.2s ease;
-    }}
-    .stTabs [data-baseweb="tab"]:hover {{
-        color: {text_main} !important;
-        background: {bg_card};
-    }}
-    .stTabs [aria-selected="true"] {{
-        color: {accent_warm} !important;
-        background: transparent !important;
-        border-bottom: 2px solid {accent_warm} !important;
-        font-weight: 700 !important;
-        margin-bottom: -2px;
+    .hero-member-name {{ color: var(--text) !important; font-size: 0.75rem; font-weight: 780; line-height: 1.22; }}
+    .hero-member-role {{
+        color: var(--muted) !important;
+        font-size: 0.62rem;
+        font-weight: 780;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }}
 
-    /* METRIC CARDS */
     div[data-testid="stMetric"] {{
-        background: {bg_card} !important;
-        border: 1px solid {border_color} !important;
-        border-radius: 12px !important;
-        padding: 1.25rem 1.5rem !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.02) !important;
-        border-left: 4px solid {accent_warm} !important;
-        transition: all 0.2s ease !important;
+        background: var(--card-bg) !important;
+        border: 1px solid var(--border) !important;
+        border-left: 4px solid var(--accent) !important;
+        border-radius: 8px !important;
+        padding: 1rem 1.12rem !important;
+        box-shadow: var(--shadow-soft) !important;
     }}
-    div[data-testid="stMetric"]:hover {{
-        border-color: {accent_warm} !important;
-        transform: translateY(-2px);
-    }}
-    div[data-testid="stMetricValue"] {{
-        font-weight: 700 !important;
-        font-size: 2.1rem !important;
-        letter-spacing: -0.04em !important;
-        color: {text_metric_val} !important;
-    }}
-    div[data-testid="stMetricLabel"] {{
-        font-weight: 700 !important;
-        font-size: 0.72rem !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.08em !important;
-        color: {accent_cool} !important;
-    }}
+    div[data-testid="stMetricValue"] {{ color: {text_metric_val} !important; font-size: 1.68rem !important; font-weight: 800 !important; letter-spacing: 0 !important; }}
+    div[data-testid="stMetricLabel"] {{ color: var(--accent-cool) !important; font-size: 0.72rem !important; font-weight: 800 !important; text-transform: uppercase !important; letter-spacing: 0.06em !important; }}
 
-    /* BOTONES */
     button[data-testid^="baseButton-"] {{
-        border-radius: 6px !important;
-        font-weight: 600 !important;
+        border-radius: 7px !important;
+        font-weight: 720 !important;
         font-size: 0.84rem !important;
-        padding: 0.5rem 1.25rem !important;
-        transition: all 0.2s ease !important;
-        cursor: pointer !important;
+        min-height: 2.35rem !important;
+        transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease !important;
     }}
     button[data-testid="baseButton-primary"] {{
-        background: {accent_warm} !important;
-        border: 1px solid {accent_warm} !important;
+        background: var(--accent) !important;
+        border: 1px solid var(--accent) !important;
         color: #FFFFFF !important;
-        box-shadow: 0 2px 6px rgba(180,83,9,0.2) !important;
+        box-shadow: 0 8px 18px rgba(37,99,235,0.20) !important;
     }}
-    button[data-testid="baseButton-primary"]:hover {{
-        background: #92400E !important;
-        border-color: #92400E !important;
-        transform: translateY(-1px) !important;
-    }}
+    button[data-testid="baseButton-primary"]:hover {{ background: var(--accent-hover) !important; border-color: var(--accent-hover) !important; transform: translateY(-1px); }}
     button[data-testid="baseButton-secondary"] {{
         background: {bg_button_secondary} !important;
         border: 1px solid {border_button_secondary} !important;
         color: {text_button_secondary} !important;
     }}
-    button[data-testid="baseButton-secondary"]:hover {{
-        border-color: {accent_warm} !important;
-        color: {accent_warm} !important;
-    }}
+    button[data-testid="baseButton-secondary"]:hover {{ border-color: var(--accent) !important; color: var(--accent) !important; }}
     button[data-testid="baseButton-download"] {{
-        background: #F0FDF4 !important;
-        border: 1px solid #86EFAC !important;
-        color: #166534 !important;
-    }}
-
-    /* INPUTS Y SELECTS (INCLUYENDO DROPDOWNS) */
-    div[data-baseweb="select"] > div,
-    div[data-baseweb="input"] > div {{
-        background: {bg_card} !important;
-        border: 1.5px solid {border_color} !important;
-        border-radius: 6px !important;
-        color: {text_main} !important;
-    }}
-    div[data-baseweb="select"] *, div[data-baseweb="input"] input {{
-        color: {text_main} !important;
-    }}
-    .stRadio label span,
-    .stSlider label,
-    .stSelectbox label,
-    .stNumberInput label,
-    .stMultiSelect label,
-    .stFileUploader label {{
-        color: {text_main} !important;
-        font-weight: 600 !important;
-    }}
-    
-    /* Popover/Menús desplegables para modo oscuro */
-    div[data-baseweb="popover"], 
-    div[data-baseweb="menu"], 
-    ul[role="listbox"],
-    ul[role="listbox"] li,
-    div[data-baseweb="popover"] * {{
-        background-color: {bg_card} !important;
-        color: {text_main} !important;
-    }}
-    div[data-baseweb="menu"] li:hover,
-    ul[role="listbox"] li:hover,
-    ul[role="listbox"] li[aria-selected="true"] {{
-        background-color: {accent_warm} !important;
+        background: var(--accent-cool) !important;
+        border: 1px solid var(--accent-cool) !important;
         color: #FFFFFF !important;
     }}
 
-    /* TABLAS EN MODO OSCURO */
-    table, tr, td, th {{
-        background-color: {bg_card} !important;
-        color: {text_main} !important;
-        border-color: {border_color} !important;
+    div[data-baseweb="select"] > div,
+    div[data-baseweb="input"] > div,
+    textarea {{
+        background: var(--card-bg) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 7px !important;
+        color: var(--text) !important;
     }}
-    thead th {{
-        background-color: {bg_app} !important;
-        color: {text_main} !important;
-        font-weight: bold !important;
+    div[data-baseweb="select"] *, div[data-baseweb="input"] input, textarea {{ color: var(--text) !important; }}
+    .stRadio label span, .stSelectbox label, .stNumberInput label, .stMultiSelect label, .stFileUploader label {{
+        color: var(--text) !important;
+        font-weight: 700 !important;
     }}
+    div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"], ul[role="listbox"] li {{
+        background: var(--card-bg) !important;
+        color: var(--text) !important;
+    }}
+    ul[role="listbox"] li:hover, ul[role="listbox"] li[aria-selected="true"] {{ background: var(--accent) !important; color: #FFFFFF !important; }}
 
-    /* LA-TEX / KA-TEX EN MODO OSCURO */
-    .stLatex, .stLatex *, .katex, .katex * {{
-        color: {text_main} !important;
-        fill: {text_main} !important;
+    div[data-testid="stDataFrame"], div[data-testid="stTable"] {{
+        border: 1px solid var(--border) !important;
+        border-radius: 8px !important;
+        overflow: hidden !important;
+        box-shadow: var(--shadow-soft) !important;
     }}
+    table, tr, td, th {{ background-color: var(--card-bg) !important; color: var(--text) !important; border-color: var(--border) !important; }}
+    thead th {{ background-color: var(--panel-bg) !important; color: var(--text) !important; font-weight: 800 !important; }}
 
-    /* HOWTO BOX */
     .howto {{
         background: {bg_howto} !important;
-        border-left: 4px solid {accent_warm};
-        border-radius: 0 8px 8px 0;
-        padding: 1.1rem 1.4rem;
-        margin-bottom: 1.5rem;
-        border-top: 1px solid {border_howto} !important;
-        border-right: 1px solid {border_howto} !important;
-        border-bottom: 1px solid {border_howto} !important;
+        border: 1px solid {border_howto} !important;
+        border-left: 4px solid var(--accent) !important;
+        border-radius: 8px !important;
+        padding: 1rem 1.18rem !important;
+        margin-bottom: 1.2rem !important;
+        box-shadow: var(--shadow-soft) !important;
     }}
-    .howto-title {{ font-weight: 700; color: {text_howto}; font-size: 0.9rem; margin-bottom: 4px; }}
-    .howto-body {{ color: {text_muted}; font-size: 0.86rem; line-height: 1.6; }}
+    .howto-title {{ color: {text_howto} !important; font-weight: 800 !important; font-size: 0.9rem !important; margin-bottom: 0.22rem !important; }}
+    .howto-body {{ color: var(--muted) !important; font-size: 0.88rem !important; line-height: 1.58 !important; }}
 
-    /* TEXTO GENERAL */
-    div[data-testid="stMarkdownContainer"] p,
-    div[data-testid="stMarkdownContainer"] li,
-    div[data-testid="stMarkdownContainer"] strong,
-    div[data-testid="stMarkdownContainer"] span {{
-        color: {text_main} !important;
-        line-height: 1.6;
+    .stAlert {{ border-radius: 8px !important; border: 1px solid var(--border) !important; }}
+    hr {{ border-color: var(--border) !important; }}
+    .js-plotly-plot {{ border-radius: 8px !important; overflow: hidden !important; }}
+
+    @media (max-width: 900px) {{
+        .block-container {{ padding: 1rem !important; }}
+        .hero {{ grid-template-columns: 1fr; }}
+        .hero-left {{ border-right: 0; border-bottom: 1px solid rgba(255,255,255,0.12); padding: 1.45rem; }}
+        .hero-right {{ padding: 1.25rem 1.45rem; }}
+        .hero-members-grid {{ grid-template-columns: 1fr; }}
     }}
 </style>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------------------------
-# CONFIGURACIÓN DE PLANTILLA PLOTLY (Terrosa, libre de morado)
+# TOPBAR — selector visual fuera del sidebar
+# ---------------------------------------------------------------------------
+topbar_left, topbar_right = st.columns([0.70, 0.30], vertical_alignment="top")
+with topbar_left:
+    st.markdown(
+        """
+        <div class="topbar">
+            <div class="topbar-title">Modelo robusto - Tostado de Cacao Nacional</div>
+            <div class="topbar-subtitle">Análisis robusto de parámetros, estabilidad del proceso y optimización multirespuesta.</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+with topbar_right:
+    st.markdown(
+        """
+        <div class="theme-shell">
+            <div class="theme-label">Tema visual</div>
+            <div class="theme-value">Modo de interfaz</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    light_col, dark_col = st.columns(2)
+    light_type = "primary" if st.session_state.theme_mode == "Claro profesional" else "secondary"
+    dark_type = "primary" if st.session_state.theme_mode == "Oscuro técnico" else "secondary"
+    if light_col.button("☀  Claro", key="theme_light", type=light_type, use_container_width=True):
+        st.session_state.theme_mode = "Claro profesional"
+        st.rerun()
+    if dark_col.button("◐  Oscuro", key="theme_dark", type=dark_type, use_container_width=True):
+        st.session_state.theme_mode = "Oscuro técnico"
+        st.rerun()
+
+# ---------------------------------------------------------------------------
+# CONFIGURACIÓN DE PLANTILLA PLOTLY (formal, técnica)
 # ---------------------------------------------------------------------------
 pio_default_template = go.layout.Template(
     layout=go.Layout(
-        font=dict(family="JetBrains Mono, monospace", color=plot_text_color, size=11),
-        title=dict(font=dict(family="Playfair Display, serif", size=14, color=plot_text_color, weight=700)),
+        font=dict(family="Cascadia Mono, Consolas, monospace", color=plot_text_color, size=11),
+        title=dict(font=dict(family="Segoe UI, Arial, sans-serif", size=14, color=plot_text_color, weight=700)),
         colorway=plotly_colorway,
         paper_bgcolor=plot_paper_bg,
         plot_bgcolor=plot_plot_bg,
@@ -521,39 +657,39 @@ RESPONSE_META = {
 # ---------------------------------------------------------------------------
 with st.sidebar:
     st.markdown("""
-    <div class="sidebar-card">
-        <div class="sidebar-header">Caso de Estudio: Taguchi</div>
+    <div class="sidebar-card spec-card">
+        <div class="sidebar-header">📋 Ficha Técnica de Proceso</div>
         <div class="sidebar-desc">Tostado de Cacao Nacional (Ecuador)</div>
         <div class="sidebar-meta">
-            <div class="meta-item"><span class="meta-label">Materia Prima</span><span class="meta-val">Cacao Fino de Aroma</span></div>
-            <div class="meta-item"><span class="meta-label">Operación</span><span class="meta-val">Tostado térmico</span></div>
-            <div class="meta-item"><span class="meta-label">Objetivo</span><span class="meta-val">Invariabilidad + Calidad</span></div>
+            <div class="meta-item"><span class="meta-label">🌰 Materia Prima</span><span class="meta-val">Cacao Fino de Aroma</span></div>
+            <div class="meta-item"><span class="meta-label">⚙️ Operación</span><span class="meta-val">Tostado térmico</span></div>
+            <div class="meta-item"><span class="meta-label">🎯 Objetivo</span><span class="meta-val">Invariabilidad + Calidad</span></div>
         </div>
     </div>
     
-    <div class="sidebar-card">
-        <div class="sidebar-header">Factores de Control</div>
+    <div class="sidebar-card control-card">
+        <div class="sidebar-header">⚙️ Factores de Control (Matriz Interna)</div>
         <div class="sidebar-pill-container">
             <div class="sidebar-pill">
-                <span class="pill-title">Temperatura de Control (<i>A</i>)</span>
+                <span class="pill-title">🌡️ Temperatura de Control (<i>A</i>)</span>
                 <span class="pill-subtitle">Rango: 120°C &ndash; 160°C</span>
             </div>
             <div class="sidebar-pill">
-                <span class="pill-title">Tiempo de Control (<i>B</i>)</span>
+                <span class="pill-title">⏱️ Tiempo de Control (<i>B</i>)</span>
                 <span class="pill-subtitle">Rango: 10 &ndash; 30 min</span>
             </div>
         </div>
     </div>
     
-    <div class="sidebar-card">
-        <div class="sidebar-header">Factores de Ruido</div>
+    <div class="sidebar-card noise-card">
+        <div class="sidebar-header">🌧️ Factores de Ruido (Matriz Externa)</div>
         <div class="sidebar-pill-container">
             <div class="sidebar-pill">
-                <span class="pill-title">Humedad Ambiental (<i>N</i><sub>1</sub>)</span>
+                <span class="pill-title">💧 Humedad Ambiental (<i>N</i><sub>1</sub>)</span>
                 <span class="pill-subtitle">Extremos: 50% HR / 80% HR</span>
             </div>
             <div class="sidebar-pill">
-                <span class="pill-title">Humedad del Grano (<i>N</i><sub>2</sub>)</span>
+                <span class="pill-title">🌾 Humedad del Grano (<i>N</i><sub>2</sub>)</span>
                 <span class="pill-subtitle">Extremos: 5% / 8% (mismo RSM)</span>
             </div>
         </div>
@@ -580,28 +716,51 @@ def howto(title: str, body: str):
 # ---------------------------------------------------------------------------
 st.markdown("""
 <div class="hero">
-    <!-- Panel izquierdo -->
     <div class="hero-left">
-        <div class="hero-tag">Taguchi &middot; Proyecto Académico</div>
         <p class="hero-title">
-            Diseño Robusto de Parámetros
-            <span>Optimización para insensibilidad al ruido ambiental e inicial</span>
+            Modelo robusto - Tostado de Cacao Nacional
+            <span>Análisis experimental de temperatura, tiempo y humedad para evaluar calidad del proceso.</span>
         </p>
-        <p class="hero-desc">Aplicación del arreglo factorial control &times; ruido para minimizar la variación del proceso de tostado frente a la humedad no controlable.</p>
+        <p class="hero-desc">El estudio cruza condiciones de control con escenarios de humedad para comparar respuestas fisicoquímicas y sensoriales del tostado.</p>
+        <div class="hero-kpis">
+            <span class="hero-kpi"><strong>Control</strong>Temperatura · Tiempo</span>
+            <span class="hero-kpi"><strong>Ruido</strong>Humedad ambiente · grano</span>
+            <span class="hero-kpi"><strong>Salida</strong>S/N · ANOVA · MRSN</span>
+        </div>
     </div>
-    <!-- Panel derecho -->
     <div class="hero-right">
-        <div class="hero-group-label">Integrantes</div>
+        <div class="hero-method">
+            <div class="method-box">
+                <div class="method-label">Matriz interna</div>
+                <div class="method-main">3 × 3</div>
+                <div class="method-sub">niveles de control</div>
+            </div>
+            <div class="method-arrow">×</div>
+            <div class="method-box">
+                <div class="method-label">Matriz externa</div>
+                <div class="method-main">2 × 2</div>
+                <div class="method-sub">escenarios de ruido</div>
+            </div>
+        </div>
         <div class="hero-divider"></div>
         <div class="hero-members-grid">
             <div class="hero-member-card">
-                <div class="hero-member-name">Chicaiza Eduardo</div>
+                <div class="hero-member-avatar">CE</div>
+                <div>
+                    <div class="hero-member-name">Chicaiza Eduardo</div>
+                </div>
             </div>
             <div class="hero-member-card">
-                <div class="hero-member-name">Guamanarca Didier</div>
+                <div class="hero-member-avatar">GD</div>
+                <div>
+                    <div class="hero-member-name">Guamanarca Didier</div>
+                </div>
             </div>
-            <div class="hero-member-card" style="grid-column: 1 / -1;">
-                <div class="hero-member-name">Tamay Katherine</div>
+            <div class="hero-member-card">
+                <div class="hero-member-avatar">TK</div>
+                <div>
+                    <div class="hero-member-name">Tamay Katherine</div>
+                </div>
             </div>
         </div>
     </div>
@@ -917,7 +1076,7 @@ elif step == "04. Pareto ANOVA":
             y=contribs,
             text=[f"{v:.2f}%" for v in contribs],
             textposition="auto",
-            marker_color=["#B45309", "#475569", "#78350F"][:len(contribs)]
+            marker_color=["#2563EB", "#0F766E", "#7C3AED"][:len(contribs)]
         ))
         fig_bar.update_layout(
             title=f"Contribución Porcentual de los Factores sobre S/N ({response_pick})",
@@ -981,7 +1140,7 @@ elif step == "05. Optimización Robusta":
         best_run_idx = df_sn[f"SN_{response_pick}"].idxmax()
         best_run = df_sn.loc[best_run_idx, "Run_Control"]
         
-        colors = ["rgba(108, 93, 83, 0.4)"] * len(df_sn)
+        colors = ["rgba(100, 116, 139, 0.38)"] * len(df_sn)
         colors[best_run_idx] = accent_warm
         
         fig_runs.add_trace(go.Bar(
