@@ -22,24 +22,18 @@ Este aplicativo interactivo implementa de forma independiente el **Diseño de Ex
 La interfaz de usuario implementa un **asistente interactivo paso a paso** (Wizard/Stepper) en el contenido principal que guía de manera lógica al analista a través de las tres fases fundamentales del Diseño Robusto de Taguchi:
 
 ```mermaid
-graph TD
-    subgraph sg1 ["Fase I: Preparación y Datos"]
+flowchart TD
+    subgraph Fase_I ["Fase I - Preparación y Datos"]
         A["01. Datos y Arreglo Cruzado"] --> B["02. Cálculo de Razones S/N"]
     end
-    subgraph sg2 ["Fase II: Análisis y Contribución"]
+    subgraph Fase_II ["Fase II - Análisis y Contribución"]
         B --> C["03. Tabla de Respuesta y Efectos"]
         C --> D["04. Pareto ANOVA"]
     end
-    subgraph sg3 ["Fase III: Optimización y Reporte"]
+    subgraph Fase_III ["Fase III - Optimización y Reporte"]
         D --> E["05. Optimización Robusta y MRSN"]
         E --> F["06. Exportación de Reporte Excel"]
     end
-    style A fill:#FAF8F5,stroke:#B45309,stroke-width:2px;
-    style B fill:#FAF8F5,stroke:#B45309,stroke-width:2px;
-    style C fill:#FAF8F5,stroke:#475569,stroke-width:2px;
-    style D fill:#FAF8F5,stroke:#475569,stroke-width:2px;
-    style E fill:#FAF8F5,stroke:#78350F,stroke-width:2px;
-    style F fill:#FAF8F5,stroke:#78350F,stroke-width:2px;
 ```
 
 ---
